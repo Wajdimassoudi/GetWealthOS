@@ -17,6 +17,8 @@
         font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
         scroll-behavior: smooth;
         background: #020617;
+        margin: 0;
+        padding: 0;
       }
       .glass {
         background: rgba(255, 255, 255, 0.03);
@@ -48,16 +50,25 @@
         -webkit-text-fill-color: transparent;
       }
 
+      /* Tailwind Animate Fallbacks - Critical for visibility */
+      .animate-in {
+        animation-duration: 1000ms;
+        animation-fill-mode: forwards;
+      }
+      .fade-in { animation-name: fadeIn; }
+      .zoom-in { animation-name: zoomIn; }
+      .slide-in-from-bottom-10 { animation-name: slideInBottom; }
+
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+      @keyframes slideInBottom { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
       .leaflet-container {
         height: 100%;
         width: 100%;
         border-radius: 2rem;
         filter: invert(100%) hue-rotate(180deg) brightness(0.5) contrast(0.8);
       }
-
-      /* Transitions */
-      .fade-enter { opacity: 0; transform: translateY(20px); }
-      .fade-enter-active { opacity: 1; transform: translateY(0); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
       
       ::-webkit-scrollbar { width: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
@@ -81,5 +92,7 @@
   </head>
   <body class="bg-[#020617] text-white">
     <div id="root"></div>
+    <!-- CRITICAL ENTRY POINT FOR VERCEL DEPLOYMENT -->
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
