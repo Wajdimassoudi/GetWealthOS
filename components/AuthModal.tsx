@@ -40,22 +40,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         body: JSON.stringify(formData)
       });
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || data.error || 'Something went wrong');
+        }
+
+        const selectedCountry = COUNTRIES.find(c => c.code === (data.user?.country || formData.country)) || COUNTRIES[0];
+        const userData = {
+          ...data.user,
+          country: selectedCountry
+        };
+
+        localStorage.setItem('gw_user', JSON.stringify(userData));
+        setLoading(false);
+        onSuccess(userData);
+        onClose();
+      } else {
+        // Handle non-JSON response (like a 500 error page from Vercel)
+        const text = await response.text();
+        console.error("Server returned non-JSON:", text);
+        throw new Error(isAr ? 'خطأ في الاتصال بالسيرفر. حاول مرة أخرى.' : 'Server communication error. Please try again.');
       }
-
-      const selectedCountry = COUNTRIES.find(c => c.code === (data.user.country || formData.country)) || COUNTRIES[0];
-      const userData = {
-        ...data.user,
-        country: selectedCountry
-      };
-
-      localStorage.setItem('gw_user', JSON.stringify(userData));
-      setLoading(false);
-      onSuccess(userData);
-      onClose();
     } catch (err) {
       setError(err.message);
       setLoading(false);
